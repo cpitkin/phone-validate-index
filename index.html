@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://unpkg.com/libphonenumber-js@1.9.10/bundle/libphonenumber-min.js"></script>
+  </head>
+  <body>
+    <script>
+      function validateNumber() {
+        var rawNumber = document.forms.inputnumber.smsnumber.value;
+        var phoneNumber = libphonenumber.parsePhoneNumber(rawNumber, 'US')
+        if (phoneNumber) {
+          return phoneNumber.isValid()
+        }
+      }
+
+      window.addEventListener( "load", function () {
+        function sendData() {
+          const XHR = new XMLHttpRequest();
+
+          // Bind the FormData object and the form element
+          const FD = new FormData(form);
+
+          // Define what happens on successful data submission
+          XHR.addEventListener( "load", function(event) {
+            window.location.replace("http://" + window.location.hostname + "/thank_you.html");
+          } );
+
+          // Define what happens in case of error
+          XHR.addEventListener( "error", function( event ) {
+            alert( 'Oops! Something went wrong. Please try agian later.' );
+          } );
+
+          // Set up our request
+          XHR.open("POST", "http://" + window.location.hostname + ":3000/number");
+
+          // Get the number value from the form and parse it into a US format
+          var rawNumber = document.forms.inputnumber.smsnumber.value;
+          var phoneNumber = libphonenumber.parsePhoneNumber(rawNumber, 'US')
+
+          // Send the number provided including the country code
+          XHR.send(phoneNumber.format('E.164'));
+        }
+
+        // Access the form element
+        const form = document.getElementById('inputnumber');
+
+        // Override the submit event.
+        form.addEventListener( "submit", function ( event ) {
+          event.preventDefault();
+
+          sendData();
+        } );
+      });
+    </script>
+    <form name=inputnumber id="inputnumber" onsubmit="return validateNumber()">
+      <label for=" phone">Enter your phone number:</label>
+      <input type="tel" id="smsnumber" name="smsnumber" required minlength="10" maxlength="10">
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>

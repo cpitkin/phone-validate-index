@@ -2,14 +2,31 @@
 <html>
   <head>
     <script src="https://unpkg.com/libphonenumber-js@1.9.10/bundle/libphonenumber-min.js"></script>
+    <!-- Uncomment if you need JQuery loaded on the page -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script> -->
   </head>
   <body>
     <script>
       function validateNumber() {
         var rawNumber = document.forms.inputnumber.smsnumber.value;
-        var phoneNumber = libphonenumber.parsePhoneNumber(rawNumber, 'US')
-        if (phoneNumber) {
-          return phoneNumber.isValid()
+
+        if (typeof rawNumber === 'number') {
+          var count = rawNumber.length;
+          var phoneNumber = libphonenumber.parsePhoneNumber(rawNumber, 'US');
+          
+          if (phoneNumber) {
+            var isValid = phoneNumber.isValid();
+            if (!isValid) {
+              $('#number-text').text('Your phone number is invalid!').css('color', 'red');
+              return isValid;
+            } else {
+              return isValid;
+            }
+          } else {
+            $('#number-text').text('Your phone number is invalid!').css('color', 'red');
+          }
+        } else {
+          $('#number-text').text('Please enter a valid phone number!').css('color', 'red');
         }
       }
 
@@ -22,16 +39,16 @@
 
           // Define what happens on successful data submission
           XHR.addEventListener( "load", function(event) {
-            window.location.replace("http://" + window.location.hostname + "/thank_you.html");
+            window.location.replace(window.location.protocol + "//" + window.location.hostname + "/thankyou.php");
           } );
 
-          // Define what happens in case of error
+          // Define what happens in case of an error
           XHR.addEventListener( "error", function( event ) {
-            alert( 'Oops! Something went wrong. Please try agian later.' );
+            alert('! Something went wrong. Please try agian later.');
           } );
 
           // Set up our request
-          XHR.open("POST", "http://" + window.location.hostname + ":3000/number");
+          XHR.open("POST", window.location.protocol + "//" + window.location.hostname);
 
           // Get the number value from the form and parse it into a US format
           var rawNumber = document.forms.inputnumber.smsnumber.value;
@@ -52,10 +69,12 @@
         } );
       });
     </script>
-    <form name=inputnumber id="inputnumber" onsubmit="return validateNumber()">
-      <label for=" phone">Enter your phone number:</label>
-      <input type="tel" id="smsnumber" name="smsnumber" required minlength="10" maxlength="10">
-      <input type="submit" value="Submit">
-    </form>
+    <div class="phone-number">
+      <form name=inputnumber id="inputnumber" onsubmit="return validateNumber()">
+        <span id="number-text">Your phone number</span>
+        <input type="tel" id="smsnumber" name="smsnumber" placeholder="2223334444" data-mask="0000000000" required minlength="10" maxlength="10">
+        <input type="submit" value="Submit">
+      </form>
+    </div>
   </body>
 </html>
